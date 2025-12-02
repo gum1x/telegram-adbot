@@ -735,7 +735,7 @@ class Telegram():
 		print()
 		await self.cycle()
 		
-# Flask app for keeping the service alive (Render free tier)
+# Flask app for health checks (Railway/Render)
 app = Flask(__name__)
 
 @app.route('/')
@@ -757,12 +757,14 @@ async def run_bot():
 	await client.start()
 
 if __name__ == "__main__":
-	# Check if running as web service (for Render free tier)
-	if os.environ.get('RENDER') or os.environ.get('PORT'):
-		# Start Flask server in background thread
+	# Check if running as web service (Railway/Render)
+	if os.environ.get('RAILWAY') or os.environ.get('RENDER') or os.environ.get('PORT'):
+		# Start Flask server in background thread for health checks
 		flask_thread = threading.Thread(target=run_flask, daemon=True)
 		flask_thread.start()
-		logging.info("Flask HTTP server started on port %s" % os.environ.get('PORT', 10000))
+		port = os.environ.get('PORT', 10000)
+		platform = "Railway" if os.environ.get('RAILWAY') else "Render"
+		logging.info("Flask HTTP server started on port %s (%s)" % (port, platform))
 		
 		# Run bot in main thread
 		asyncio.get_event_loop().run_until_complete(run_bot())
