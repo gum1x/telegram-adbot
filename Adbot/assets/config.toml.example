@@ -1,0 +1,44 @@
+[telegram]
+# Get your API ID/HASH from https://my.telegram.org/auth
+
+phone_number="+1234567890"
+api_id=12345678
+api_hash="your_api_hash_here"
+
+# Auto-run configuration (for Render/deployment)
+# Set auto_run=true to skip interactive prompts
+auto_run=false
+# Source chat/channel ID to forward messages from (only used if auto_run=true)
+source_chat_id=-1001234567890
+# Message ID to forward (only used if auto_run=true)
+message_id=1
+# Skip joining groups on startup (set to false to enable group joining)
+skip_join_groups=false
+
+[sending]
+# The send interval is how long you want to wait between sending messages.
+# The loop interval is how long you want to wait before re-sending messages to all the groups.
+
+# Sending Limits
+send_interval=0
+loop_interval=1500
+
+[filters]
+# Group size filters (DISABLED - set to 0)
+# Member count detection is unreliable for many groups
+min_members=0
+max_members=0
+
+# Excluded group names (case-insensitive, comma-separated)
+# CRITICAL: Groups matching these filters will NEVER receive messages
+# The bot checks if any of these words appear in the group name
+excluded_names="ogu chat,chatter,ogu,example group"
+
+# Group-specific topic IDs (for forum groups)
+# Format: group_id=topic_id
+# Example: -1002256623070=12018
+# Or by name: flips market=12018
+[group_topics]
+# "-1002256623070"=12018
+
+
