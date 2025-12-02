@@ -30,8 +30,13 @@
 
 ### Step 2: Deploy to Render
 
+**⚠️ IMPORTANT: Free Tier Limitations**
+- Free instances **spin down after 15 minutes of inactivity**
+- **No persistent disk** - session files may be lost on restart
+- **Solution**: Use a free ping service (see below) OR upgrade to paid ($7/month)
+
 1. **Go to Render.com** and sign up/login
-2. **Click "New +"** → **"Background Worker"**
+2. **Click "New +"** → **"Web Service"** (NOT Background Worker - Web Service has free tier)
 3. **Connect your repository**:
    - Click "Connect account" if you haven't already
    - Authorize Render to access your GitHub/GitLab
@@ -46,6 +51,7 @@
    - **Environment**: `Python 3`
    - **Build Command**: `pip install -r requirements.txt`
    - **Start Command**: `python3 main.py`
+   - **Instance Type**: **Free** (or Starter $7/month for persistent disk)
 
 5. **Add Environment Variables** (click "Advanced"):
    - `PYTHONUNBUFFERED` = `1` (for real-time logs)
@@ -98,6 +104,30 @@ Since `config.toml` isn't in Git, you have **two options**:
 
 After first authentication, the session file will be saved and it will run automatically!
 
+### Step 5: Keep Free Tier Alive (IMPORTANT!)
+
+**Free tier spins down after 15 minutes of inactivity!** You need to ping it regularly:
+
+#### Option A: Use Free Ping Service (Recommended)
+
+1. **Get your Render URL**: After deployment, Render gives you a URL like `https://telegram-adbot.onrender.com`
+
+2. **Set up UptimeRobot** (free):
+   - Go to https://uptimerobot.com (free account)
+   - Add a new monitor
+   - **Type**: HTTP(s)
+   - **URL**: `https://your-app.onrender.com/health`
+   - **Interval**: 5 minutes
+   - Save
+
+3. **Alternative**: Use cron-job.org or similar free services to ping your URL every 5 minutes
+
+#### Option B: Upgrade to Starter ($7/month)
+
+- **Persistent disk** - session files survive restarts
+- **No spin-down** - stays running 24/7
+- **Better reliability** for production use
+
 ## Your Config Settings
 
 Make sure your `config.toml` on Render has:
@@ -123,4 +153,6 @@ skip_join_groups=true
 - **"Config file not found"**: Make sure `config.toml` exists in `Adbot/assets/`
 - **"Session file error"**: This is normal on first run - you'll authenticate once
 - **"Module not found"**: Check that `requirements.txt` is in the `Adbot` folder
+- **Bot stops working**: Free tier spun down - set up ping service (UptimeRobot) or upgrade to paid
+- **Session lost on restart**: Free tier has no persistent disk - upgrade to Starter ($7/month) for persistent storage
 

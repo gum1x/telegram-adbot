@@ -3,6 +3,8 @@ import toml
 import logging
 import asyncio
 import random
+import threading
+from flask import Flask
 
 from telethon import TelegramClient
 from telethon import functions, types, errors, events
@@ -733,6 +735,38 @@ class Telegram():
 		print()
 		await self.cycle()
 		
-if __name__ == "__main__":
+# Flask app for keeping the service alive (Render free tier)
+app = Flask(__name__)
+
+@app.route('/')
+def health_check():
+	return {'status': 'ok', 'service': 'telegram-adbot'}, 200
+
+@app.route('/health')
+def health():
+	return {'status': 'healthy', 'bot': 'running'}, 200
+
+def run_flask():
+	"""Run Flask server in a separate thread"""
+	port = int(os.environ.get('PORT', 10000))
+	app.run(host='0.0.0.0', port=port, debug=False)
+
+async def run_bot():
+	"""Run the Telegram bot"""
 	client = Telegram()
-	asyncio.get_event_loop().run_until_complete(client.start())
+	await client.start()
+
+if __name__ == "__main__":
+	# Check if running as web service (for Render free tier)
+	if os.environ.get('RENDER') or os.environ.get('PORT'):
+		# Start Flask server in background thread
+		flask_thread = threading.Thread(target=run_flask, daemon=True)
+		flask_thread.start()
+		logging.info("Flask HTTP server started on port %s" % os.environ.get('PORT', 10000))
+		
+		# Run bot in main thread
+		asyncio.get_event_loop().run_until_complete(run_bot())
+	else:
+		# Run normally (local development)
+		client = Telegram()
+		asyncio.get_event_loop().run_until_complete(client.start())
